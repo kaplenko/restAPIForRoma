@@ -1,0 +1,349 @@
+basePath: /api
+definitions:
+  entity.Balance:
+    properties:
+      current:
+        type: integer
+      withdraw:
+        type: integer
+    type: object
+  entity.Order:
+    properties:
+      accrual:
+        type: integer
+      number:
+        type: string
+      status:
+        type: string
+      upload_at:
+        type: string
+    type: object
+  entity.Withdrawal:
+    properties:
+      order:
+        type: string
+      processed_at:
+        type: string
+      sum:
+        type: integer
+    type: object
+  errWrap.ErrorResponse:
+    properties:
+      message:
+        type: string
+      type:
+        $ref: '#/definitions/errWrap.ErrorType'
+    type: object
+  errWrap.ErrorType:
+    enum:
+    - unique_violation
+    - foreign_key
+    - not_null_violation
+    - check_violation
+    - unauthorized
+    - payment_required
+    - validation
+    - too_many_requests
+    - order_already_exists
+    - order_already_uploaded
+    - no_response_data
+    type: string
+    x-enum-varnames:
+    - ErrUniqueViolation
+    - ErrForeignKey
+    - ErrNotNullViolation
+    - ErrCheckViolation
+    - ErrUnauthorized
+    - ErrPaymentRequired
+    - ErrValidation
+    - ErrTooManyRequests
+    - ErrOrderAlreadyExists
+    - ErrOrderAlreadyUploaded
+    - ErrNoResponseData
+  http.OrderRequest:
+    properties:
+      order_number:
+        type: string
+    type: object
+  http.WithdrawRequest:
+    properties:
+      order:
+        type: string
+      sum:
+        type: integer
+    type: object
+  http.userDTO:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API для управления пользователями, заказами и балансом
+  title: User Service API
+  version: "1.0"
+paths:
+  /api/user/balance:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <token>
+        description: Authorization token (Bearer)
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: successful processing of the request
+          schema:
+            $ref: '#/definitions/entity.Balance'
+        "401":
+          description: user is not authorized
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Balance
+      tags:
+      - balance
+  /api/user/balance/withdraw:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <token>
+        description: Authorization token (Bearer)
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Withdrawal data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.WithdrawRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: successful processing of the request
+        "401":
+          description: user is not authorized
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+        "402":
+          description: insufficient funds on the account
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+        "422":
+          description: incorrect order number
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Write-off request
+      tags:
+      - balance
+  /api/user/login:
+    post:
+      description: login the user
+      parameters:
+      - description: Login data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.userDTO'
+      responses:
+        "200":
+          description: user successfully authenticated
+        "400":
+          description: invalid request format
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+        "401":
+          description: invalid login/password pair
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+      summary: login
+      tags:
+      - auth
+  /api/user/orders:
+    get:
+      consumes:
+      - application/json
+      description: Creates a new order for an authorized user
+      parameters:
+      - default: Bearer <token>
+        description: Authorization token (Bearer)
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of user orders
+          schema:
+            items:
+              $ref: '#/definitions/entity.Order'
+            type: array
+        "204":
+          description: no data to answer
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+        "401":
+          description: user is not authorized
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get order
+      tags:
+      - orders
+    post:
+      consumes:
+      - application/json
+      description: Creates a new order for an authorized user
+      parameters:
+      - default: Bearer <token>
+        description: Authorization token (Bearer)
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Order data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/http.OrderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: the order number has already been uploaded by this user
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+        "202":
+          description: new order number has been accepted for processing
+        "400":
+          description: wrong request format
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+        "401":
+          description: user is not authenticated
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+        "409":
+          description: the order number has already been uploaded by another user
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+        "422":
+          description: incorrect order number format
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Add order
+      tags:
+      - orders
+  /api/user/register:
+    post:
+      consumes:
+      - application/json
+      description: registers the user
+      parameters:
+      - description: Registration data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.userDTO'
+      responses:
+        "200":
+          description: user is successfully registered and authenticated
+        "400":
+          description: wrong request format
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+        "409":
+          description: login is already occupied
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+      summary: registration
+      tags:
+      - auth
+  /api/user/withdrawals:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <token>
+        description: Authorization token (Bearer)
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: successful request processing
+          schema:
+            items:
+              $ref: '#/definitions/entity.Withdrawal'
+            type: array
+        "204":
+          description: there are no write-offs
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+        "401":
+          description: user is not authorized
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/errWrap.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: information on withdrawal of funds
+      tags:
+      - balance
+schemes:
+- http
+swagger: "2.0"

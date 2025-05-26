@@ -1,0 +1,530 @@
+{
+    "schemes": [
+        "http"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "API для управления пользователями, заказами и балансом",
+        "title": "User Service API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api",
+    "paths": {
+        "/api/user/balance": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "balance"
+                ],
+                "summary": "Get Balance",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003ctoken\u003e",
+                        "description": "Authorization token (Bearer)",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful processing of the request",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Balance"
+                        }
+                    },
+                    "401": {
+                        "description": "user is not authorized",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/balance/withdraw": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "balance"
+                ],
+                "summary": "Write-off request",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003ctoken\u003e",
+                        "description": "Authorization token (Bearer)",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Withdrawal data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.WithdrawRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful processing of the request"
+                    },
+                    "401": {
+                        "description": "user is not authorized",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    },
+                    "402": {
+                        "description": "insufficient funds on the account",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "incorrect order number",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/login": {
+            "post": {
+                "description": "login the user",
+                "tags": [
+                    "auth"
+                ],
+                "summary": "login",
+                "parameters": [
+                    {
+                        "description": "Login data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.userDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "user successfully authenticated"
+                    },
+                    "400": {
+                        "description": "invalid request format",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "invalid login/password pair",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/orders": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Creates a new order for an authorized user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Get order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003ctoken\u003e",
+                        "description": "Authorization token (Bearer)",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of user orders",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/entity.Order"
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "no data to answer",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "user is not authorized",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Creates a new order for an authorized user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Add order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003ctoken\u003e",
+                        "description": "Authorization token (Bearer)",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Order data",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.OrderRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "the order number has already been uploaded by this user",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    },
+                    "202": {
+                        "description": "new order number has been accepted for processing"
+                    },
+                    "400": {
+                        "description": "wrong request format",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "user is not authenticated",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "the order number has already been uploaded by another user",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "incorrect order number format",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/register": {
+            "post": {
+                "description": "registers the user",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "registration",
+                "parameters": [
+                    {
+                        "description": "Registration data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.userDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "user is successfully registered and authenticated"
+                    },
+                    "400": {
+                        "description": "wrong request format",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "login is already occupied",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/withdrawals": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "balance"
+                ],
+                "summary": "information on withdrawal of funds",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003ctoken\u003e",
+                        "description": "Authorization token (Bearer)",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful request processing",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/entity.Withdrawal"
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "there are no write-offs",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "user is not authorized",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/errWrap.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "entity.Balance": {
+            "type": "object",
+            "properties": {
+                "current": {
+                    "type": "integer"
+                },
+                "withdraw": {
+                    "type": "integer"
+                }
+            }
+        },
+        "entity.Order": {
+            "type": "object",
+            "properties": {
+                "accrual": {
+                    "type": "integer"
+                },
+                "number": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "upload_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.Withdrawal": {
+            "type": "object",
+            "properties": {
+                "order": {
+                    "type": "string"
+                },
+                "processed_at": {
+                    "type": "string"
+                },
+                "sum": {
+                    "type": "integer"
+                }
+            }
+        },
+        "errWrap.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/errWrap.ErrorType"
+                }
+            }
+        },
+        "errWrap.ErrorType": {
+            "type": "string",
+            "enum": [
+                "unique_violation",
+                "foreign_key",
+                "not_null_violation",
+                "check_violation",
+                "unauthorized",
+                "payment_required",
+                "validation",
+                "too_many_requests",
+                "order_already_exists",
+                "order_already_uploaded",
+                "no_response_data"
+            ],
+            "x-enum-varnames": [
+                "ErrUniqueViolation",
+                "ErrForeignKey",
+                "ErrNotNullViolation",
+                "ErrCheckViolation",
+                "ErrUnauthorized",
+                "ErrPaymentRequired",
+                "ErrValidation",
+                "ErrTooManyRequests",
+                "ErrOrderAlreadyExists",
+                "ErrOrderAlreadyUploaded",
+                "ErrNoResponseData"
+            ]
+        },
+        "http.OrderRequest": {
+            "type": "object",
+            "properties": {
+                "order_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "http.WithdrawRequest": {
+            "type": "object",
+            "properties": {
+                "order": {
+                    "type": "string"
+                },
+                "sum": {
+                    "type": "integer"
+                }
+            }
+        },
+        "http.userDTO": {
+            "type": "object",
+            "properties": {
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
