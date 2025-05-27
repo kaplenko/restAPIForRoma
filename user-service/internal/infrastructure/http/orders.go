@@ -81,7 +81,7 @@ func (h *Handler) GetOrders(w http.ResponseWriter, r *http.Request) {
 		resp = append(resp, OrderResponse{
 			Number:  o.Number,
 			Status:  o.Status,
-			Accrual: CentsToRubles(*o.Accrual),
+			Accrual: AccrualToRubles(o.Accrual),
 		})
 	}
 

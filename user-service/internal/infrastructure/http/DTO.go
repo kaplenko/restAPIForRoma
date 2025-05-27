@@ -18,6 +18,13 @@ func RublesToCents(ruble float64) int64 {
 	return int64(math.Round(ruble / 100))
 }
 
+func AccrualToRubles(accrual *int64) float64 {
+	if accrual != nil {
+		return CentsToRubles(*accrual)
+	}
+	return 0
+}
+
 type OrderRequest struct {
 	Number string `json:"order_number"`
 }
