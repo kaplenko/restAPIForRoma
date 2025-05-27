@@ -488,7 +488,7 @@ const docTemplate = `{
                 "status": {
                     "type": "string"
                 },
-                "upload_at": {
+                "uploaded_at": {
                     "type": "string"
                 }
             }

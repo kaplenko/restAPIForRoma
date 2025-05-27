@@ -53,7 +53,7 @@ definitions:
         type: string
       status:
         type: string
-      upload_at:
+      uploaded_at:
         type: string
     type: object
   http.WithdrawRequest:
