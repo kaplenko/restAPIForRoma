@@ -10,7 +10,6 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-	_ "user-service/docs"
 	"user-service/internal/entity"
 	httpApp "user-service/internal/infrastructure/http"
 	"user-service/internal/infrastructure/storage"

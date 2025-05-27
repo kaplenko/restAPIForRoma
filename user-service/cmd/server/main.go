@@ -11,14 +11,14 @@ import (
 func main() {
 	cfg := config.LoadConfig()
 
-	DBDSN := fmt.Sprintf("postgres://%v:%v@%v:%v/%v?sslmode=disable",
+	DSN := fmt.Sprintf("postgres://%v:%v@%v:%v/%v?sslmode=disable",
 		cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBName)
 
 	log := logger.NewSlogLogger()
 
 	jwt.Init(cfg.JWTSecret)
 
-	app := app.New(log, DBDSN, cfg.TokenTTL)
+	app := app.New(log, DSN, cfg.TokenTTL)
 
 	app.Run(cfg.AppHost, cfg.AppPort)
 }

@@ -5,6 +5,7 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 	"net/http"
 	"strings"
+	_ "user-service/docs"
 	"user-service/internal/entity"
 	"user-service/internal/usecase"
 	"user-service/pkg/jwt"
