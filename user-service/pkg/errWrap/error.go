@@ -93,7 +93,7 @@ func HandleError(w http.ResponseWriter, err error) {
 		case ErrOrderAlreadyExists:
 			w.WriteHeader(http.StatusConflict)
 		case ErrOrderAlreadyUploaded:
-			w.WriteHeader(http.StatusAccepted)
+			w.WriteHeader(http.StatusOK)
 			return
 		case ErrNoResponseData:
 			w.WriteHeader(http.StatusNoContent)

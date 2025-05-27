@@ -123,7 +123,7 @@ func (h *Handler) Withdrawals(w http.ResponseWriter, r *http.Request) {
 
 	h.log.Info(ctx, "withdrawals retrieved", "count", len(withdrawals))
 
-	resp := make([]WithdrawalResponse, len(withdrawals))
+	resp := make([]WithdrawalResponse, 0, len(withdrawals))
 	for _, wd := range withdrawals {
 		resp = append(resp, WithdrawalResponse{
 			OrderNumber: wd.OrderNumber,

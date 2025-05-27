@@ -15,7 +15,7 @@ func CentsToRubles(cents int64) float64 {
 }
 
 func RublesToCents(ruble float64) int64 {
-	return int64(math.Round(ruble / 100))
+	return int64(math.Round(ruble * 100))
 }
 
 func AccrualToRubles(accrual *int64) float64 {
@@ -33,7 +33,7 @@ type OrderResponse struct {
 	Number   string    `json:"number"`
 	Status   string    `json:"status"`
 	Accrual  float64   `json:"accrual"`
-	UploadAT time.Time `json:"upload_at"`
+	UploadAT time.Time `json:"uploaded_at"`
 }
 
 type WithdrawRequest struct {

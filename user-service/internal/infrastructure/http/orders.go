@@ -76,12 +76,13 @@ func (h *Handler) GetOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := make([]OrderResponse, len(orders))
+	resp := make([]OrderResponse, 0, len(orders))
 	for _, o := range orders {
 		resp = append(resp, OrderResponse{
-			Number:  o.Number,
-			Status:  o.Status,
-			Accrual: AccrualToRubles(o.Accrual),
+			Number:   o.Number,
+			Status:   o.Status,
+			Accrual:  AccrualToRubles(o.Accrual),
+			UploadAT: o.UploadAT,
 		})
 	}
 
