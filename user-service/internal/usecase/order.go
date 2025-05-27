@@ -9,16 +9,29 @@ import (
 type OrderRepository interface {
 	CreateOrder(context.Context, *entity.Order) error
 	OrdersByUser(context.Context, int64) ([]entity.Order, error)
+	UpdateOrder(context.Context, string, string, *int64) error
+}
+
+type AccrualService interface {
+	RequestCalculation(context.Context, string) (*AccrualResponse, error)
+}
+
+type AccrualResponse struct {
+	OrderNumber string
+	Status      string
+	Accrual     *int64
 }
 
 type OrderService struct {
 	repo OrderRepository
+	accr AccrualService
 	log  entity.Logger
 }
 
-func NewOrderService(repo OrderRepository, log entity.Logger) *OrderService {
+func NewOrderService(repo OrderRepository, accr AccrualService, log entity.Logger) *OrderService {
 	return &OrderService{
 		repo: repo,
+		accr: accr,
 		log:  log,
 	}
 }
@@ -38,7 +51,15 @@ func (os *OrderService) CreateOrder(ctx context.Context, userID int64, orderNumb
 		os.log.Error(ctx, "failed to create order", "number", orderNumber, "error", err)
 		return err
 	}
-	
+
+	resp, err := os.accr.RequestCalculation(ctx, orderNumber)
+	if err != nil {
+		os.log.Error(ctx, "failed to request calculation", "number", orderNumber, "error", err)
+	}
+	if err = os.repo.UpdateOrder(ctx, orderNumber, resp.Status, resp.Accrual); err != nil {
+		os.log.Error(ctx, "failed to update order", "number", orderNumber, "error", err)
+	}
+
 	return nil
 }
 

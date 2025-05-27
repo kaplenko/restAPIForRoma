@@ -1,32 +1,5 @@
-basePath: /api
+basePath: /
 definitions:
-  entity.Balance:
-    properties:
-      current:
-        type: integer
-      withdraw:
-        type: integer
-    type: object
-  entity.Order:
-    properties:
-      accrual:
-        type: integer
-      number:
-        type: string
-      status:
-        type: string
-      upload_at:
-        type: string
-    type: object
-  entity.Withdrawal:
-    properties:
-      order:
-        type: string
-      processed_at:
-        type: string
-      sum:
-        type: integer
-    type: object
   errWrap.ErrorResponse:
     properties:
       message:
@@ -60,9 +33,27 @@ definitions:
     - ErrOrderAlreadyExists
     - ErrOrderAlreadyUploaded
     - ErrNoResponseData
+  http.BalanceResponse:
+    properties:
+      current:
+        type: number
+      withdraw:
+        type: number
+    type: object
   http.OrderRequest:
     properties:
       order_number:
+        type: string
+    type: object
+  http.OrderResponse:
+    properties:
+      accrual:
+        type: number
+      number:
+        type: string
+      status:
+        type: string
+      upload_at:
         type: string
     type: object
   http.WithdrawRequest:
@@ -70,7 +61,16 @@ definitions:
       order:
         type: string
       sum:
-        type: integer
+        type: number
+    type: object
+  http.WithdrawalResponse:
+    properties:
+      order:
+        type: string
+      processed_at:
+        type: string
+      sum:
+        type: number
     type: object
   http.userDTO:
     properties:
@@ -103,7 +103,7 @@ paths:
         "200":
           description: successful processing of the request
           schema:
-            $ref: '#/definitions/entity.Balance'
+            $ref: '#/definitions/http.BalanceResponse'
         "401":
           description: user is not authorized
           schema:
@@ -207,7 +207,7 @@ paths:
           description: List of user orders
           schema:
             items:
-              $ref: '#/definitions/entity.Order'
+              $ref: '#/definitions/http.OrderResponse'
             type: array
         "204":
           description: no data to answer
@@ -325,7 +325,7 @@ paths:
           description: successful request processing
           schema:
             items:
-              $ref: '#/definitions/entity.Withdrawal'
+              $ref: '#/definitions/http.WithdrawalResponse'
             type: array
         "204":
           description: there are no write-offs

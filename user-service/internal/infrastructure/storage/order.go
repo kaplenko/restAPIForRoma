@@ -67,3 +67,15 @@ func (s *Storage) OrdersByUser(ctx context.Context, userID int64) ([]entity.Orde
 	}
 	return orders, nil
 }
+
+func (s *Storage) UpdateOrder(ctx context.Context, orderNumber, status string, accrual *int64) error {
+	_, err := s.pool.Exec(ctx,
+		`UPDATE orders SET status = $1, accrual = $2 WHERE order_number = $3`,
+		status, accrual, orderNumber,
+	)
+	if err != nil {
+		s.log.Error(ctx, "failed to update order", "orderNumber", orderNumber, "status", status, "error", err)
+		return errWrap.WrapError(err)
+	}
+	return nil
+}

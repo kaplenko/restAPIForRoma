@@ -6,10 +6,6 @@ import (
 	"user-service/pkg/errWrap"
 )
 
-type OrderRequest struct {
-	OrderNumber string `json:"order_number"`
-}
-
 // @Summary Add order
 // @Description Creates a new order for an authorized user
 // @Tags orders
@@ -36,19 +32,19 @@ func (h *Handler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req OrderRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.OrderNumber == "" {
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Number == "" {
 		h.log.Error(ctx, "json decode failed", "err", err)
 		errWrap.HandleError(w, err)
 		return
 	}
-	err := h.orderService.CreateOrder(ctx, userID, req.OrderNumber)
+	err := h.orderService.CreateOrder(ctx, userID, req.Number)
 	if err != nil {
 		h.log.Error(ctx, "create order failed", "err", err)
 		errWrap.HandleError(w, err)
 		return
 	}
 
-	h.log.Info(ctx, "create order succeed", "orderNumber", req.OrderNumber)
+	h.log.Info(ctx, "create order succeed", "orderNumber", req.Number)
 
 	w.WriteHeader(http.StatusAccepted)
 }
@@ -60,7 +56,7 @@ func (h *Handler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param Authorization header string true "Authorization token (Bearer)" default(Bearer <token>)
-// @Success 200 {array} entity.Order "List of user orders"
+// @Success 200 {array} OrderResponse "List of user orders"
 // @Success 204 {object} errWrap.ErrorResponse "no data to answer"
 // @Failure 401 {object} errWrap.ErrorResponse "user is not authorized"
 // @Failure 500 {object} errWrap.ErrorResponse "internal server error"
@@ -80,11 +76,20 @@ func (h *Handler) GetOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.log.Info(ctx, "get orders succeed", "orders", orders)
+	resp := make([]OrderResponse, len(orders))
+	for _, o := range orders {
+		resp = append(resp, OrderResponse{
+			Number:  o.Number,
+			Status:  o.Status,
+			Accrual: CentsToRubles(*o.Accrual),
+		})
+	}
+
+	h.log.Info(ctx, "get orders succeed", "orders", resp)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if err = json.NewEncoder(w).Encode(orders); err != nil {
+	if err = json.NewEncoder(w).Encode(resp); err != nil {
 		h.log.Error(ctx, "json encode failed", "err", err)
 		errWrap.HandleError(w, err)
 	}

@@ -12,7 +12,7 @@ import (
 // @Produce json
 // @Security ApiKeyAuth
 // @Param Authorization header string true "Authorization token (Bearer)" default(Bearer <token>)
-// @Success 200 {object} entity.Balance "successful processing of the request"
+// @Success 200 {object} BalanceResponse "successful processing of the request"
 // @Failure 401 {object} errWrap.ErrorResponse "user is not authorized"
 // @Failure 500 {object} errWrap.ErrorResponse "internal server error"
 // @Router /api/user/balance [get]
@@ -36,18 +36,18 @@ func (h *Handler) GetBalance(w http.ResponseWriter, r *http.Request) {
 
 	h.log.Info(ctx, "balance retrieved", "balance", balance)
 
+	resp := BalanceResponse{
+		Current:  CentsToRubles(balance.Current),
+		Withdraw: CentsToRubles(balance.Withdraw),
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if err = json.NewEncoder(w).Encode(balance); err != nil {
+	if err = json.NewEncoder(w).Encode(resp); err != nil {
 		h.log.Error(ctx, "failed to encode balance", "error", err)
 		errWrap.HandleError(w, err)
 		return
 	}
-}
-
-type WithdrawRequest struct {
-	Order string `json:"order"`
-	Sum   int64  `json:"sum"`
 }
 
 // @Summary Write-off request
@@ -81,7 +81,9 @@ func (h *Handler) WithdrawBalance(w http.ResponseWriter, r *http.Request) {
 
 	h.log.Info(ctx, "withdraw request accepted", "order", req.Order)
 
-	if err := h.balanceService.Withdraw(ctx, userID, req.Sum, req.Order); err != nil {
+	sumInCent := RublesToCents(req.Sum)
+
+	if err := h.balanceService.Withdraw(ctx, userID, sumInCent, req.Order); err != nil {
 		h.log.Error(ctx, "failed to withdraw", "order", req.Order, "sum", req.Sum, "error", err)
 		errWrap.HandleError(w, err)
 		return
@@ -96,7 +98,7 @@ func (h *Handler) WithdrawBalance(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param Authorization header string true "Authorization token (Bearer)" default(Bearer <token>)
-// @Success 200 {object} []entity.Withdrawal "successful request processing"
+// @Success 200 {object} []WithdrawalResponse "successful request processing"
 // @Failure 204 {object} errWrap.ErrorResponse "there are no write-offs"
 // @Failure 401 {object} errWrap.ErrorResponse "user is not authorized"
 // @Failure 500 {object} errWrap.ErrorResponse "internal server error"
@@ -121,9 +123,18 @@ func (h *Handler) Withdrawals(w http.ResponseWriter, r *http.Request) {
 
 	h.log.Info(ctx, "withdrawals retrieved", "count", len(withdrawals))
 
+	resp := make([]WithdrawalResponse, len(withdrawals))
+	for _, wd := range withdrawals {
+		resp = append(resp, WithdrawalResponse{
+			OrderNumber: wd.OrderNumber,
+			Sum:         CentsToRubles(wd.Sum),
+			ProcessedAt: wd.ProcessedAt,
+		})
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if err = json.NewEncoder(w).Encode(withdrawals); err != nil {
+	if err = json.NewEncoder(w).Encode(resp); err != nil {
 		h.log.Error(ctx, "failed to encode withdrawals", "error", err)
 		errWrap.HandleError(w, err)
 		return

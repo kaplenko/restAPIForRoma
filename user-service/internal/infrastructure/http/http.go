@@ -2,6 +2,7 @@ package http
 
 import (
 	"github.com/gorilla/mux"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"net/http"
 	"strings"
 	"user-service/internal/entity"
@@ -15,11 +16,6 @@ type Handler struct {
 	balanceService *usecase.BalanceService
 	router         *mux.Router
 	log            entity.Logger
-}
-
-type userDTO struct {
-	Username string `json:"login"`
-	Password string `json:"password"`
 }
 
 func New(usecase *usecase.UserService, orderService *usecase.OrderService, balanceService *usecase.BalanceService, r *mux.Router, log entity.Logger) *Handler {
@@ -36,7 +32,15 @@ func (h *Handler) Router() *mux.Router {
 	return h.router
 }
 
+// @title User Service API
+// @version 1.0
+// @description API для управления пользователями, заказами и балансом
+// @host localhost:8080
+// @BasePath /
+// @schemes http
 func (h *Handler) SetupRoutes() {
+	h.router.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
+
 	h.router.Use(Cors)
 	public := h.router.PathPrefix("/api/user").Subrouter()
 

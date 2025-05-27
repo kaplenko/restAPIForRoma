@@ -46,7 +46,7 @@ const docTemplate = `{
                     "200": {
                         "description": "successful processing of the request",
                         "schema": {
-                            "$ref": "#/definitions/entity.Balance"
+                            "$ref": "#/definitions/http.BalanceResponse"
                         }
                     },
                     "401": {
@@ -208,7 +208,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/entity.Order"
+                                "$ref": "#/definitions/http.OrderResponse"
                             }
                         }
                     },
@@ -390,7 +390,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/entity.Withdrawal"
+                                "$ref": "#/definitions/http.WithdrawalResponse"
                             }
                         }
                     },
@@ -417,48 +417,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "entity.Balance": {
-            "type": "object",
-            "properties": {
-                "current": {
-                    "type": "integer"
-                },
-                "withdraw": {
-                    "type": "integer"
-                }
-            }
-        },
-        "entity.Order": {
-            "type": "object",
-            "properties": {
-                "accrual": {
-                    "type": "integer"
-                },
-                "number": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "upload_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "entity.Withdrawal": {
-            "type": "object",
-            "properties": {
-                "order": {
-                    "type": "string"
-                },
-                "processed_at": {
-                    "type": "string"
-                },
-                "sum": {
-                    "type": "integer"
-                }
-            }
-        },
         "errWrap.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -499,10 +457,38 @@ const docTemplate = `{
                 "ErrNoResponseData"
             ]
         },
+        "http.BalanceResponse": {
+            "type": "object",
+            "properties": {
+                "current": {
+                    "type": "number"
+                },
+                "withdraw": {
+                    "type": "number"
+                }
+            }
+        },
         "http.OrderRequest": {
             "type": "object",
             "properties": {
                 "order_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "http.OrderResponse": {
+            "type": "object",
+            "properties": {
+                "accrual": {
+                    "type": "number"
+                },
+                "number": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "upload_at": {
                     "type": "string"
                 }
             }
@@ -514,7 +500,21 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "sum": {
-                    "type": "integer"
+                    "type": "number"
+                }
+            }
+        },
+        "http.WithdrawalResponse": {
+            "type": "object",
+            "properties": {
+                "order": {
+                    "type": "string"
+                },
+                "processed_at": {
+                    "type": "string"
+                },
+                "sum": {
+                    "type": "number"
                 }
             }
         },
@@ -536,12 +536,14 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8080",
-	BasePath:         "/api",
+	BasePath:         "/",
 	Schemes:          []string{"http"},
 	Title:            "User Service API",
 	Description:      "API для управления пользователями, заказами и балансом",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
+	LeftDelim:        "{{",
+	RightDelim:       "}}",
 }
 
 func init() {

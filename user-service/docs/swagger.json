@@ -10,7 +10,7 @@
         "version": "1.0"
     },
     "host": "localhost:8080",
-    "basePath": "/api",
+    "basePath": "/",
     "paths": {
         "/api/user/balance": {
             "get": {
@@ -43,7 +43,7 @@
                     "200": {
                         "description": "successful processing of the request",
                         "schema": {
-                            "$ref": "#/definitions/entity.Balance"
+                            "$ref": "#/definitions/http.BalanceResponse"
                         }
                     },
                     "401": {
@@ -205,7 +205,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/entity.Order"
+                                "$ref": "#/definitions/http.OrderResponse"
                             }
                         }
                     },
@@ -387,7 +387,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/entity.Withdrawal"
+                                "$ref": "#/definitions/http.WithdrawalResponse"
                             }
                         }
                     },
@@ -414,48 +414,6 @@
         }
     },
     "definitions": {
-        "entity.Balance": {
-            "type": "object",
-            "properties": {
-                "current": {
-                    "type": "integer"
-                },
-                "withdraw": {
-                    "type": "integer"
-                }
-            }
-        },
-        "entity.Order": {
-            "type": "object",
-            "properties": {
-                "accrual": {
-                    "type": "integer"
-                },
-                "number": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "upload_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "entity.Withdrawal": {
-            "type": "object",
-            "properties": {
-                "order": {
-                    "type": "string"
-                },
-                "processed_at": {
-                    "type": "string"
-                },
-                "sum": {
-                    "type": "integer"
-                }
-            }
-        },
         "errWrap.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -496,10 +454,38 @@
                 "ErrNoResponseData"
             ]
         },
+        "http.BalanceResponse": {
+            "type": "object",
+            "properties": {
+                "current": {
+                    "type": "number"
+                },
+                "withdraw": {
+                    "type": "number"
+                }
+            }
+        },
         "http.OrderRequest": {
             "type": "object",
             "properties": {
                 "order_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "http.OrderResponse": {
+            "type": "object",
+            "properties": {
+                "accrual": {
+                    "type": "number"
+                },
+                "number": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "upload_at": {
                     "type": "string"
                 }
             }
@@ -511,7 +497,21 @@
                     "type": "string"
                 },
                 "sum": {
-                    "type": "integer"
+                    "type": "number"
+                }
+            }
+        },
+        "http.WithdrawalResponse": {
+            "type": "object",
+            "properties": {
+                "order": {
+                    "type": "string"
+                },
+                "processed_at": {
+                    "type": "string"
+                },
+                "sum": {
+                    "type": "number"
                 }
             }
         },

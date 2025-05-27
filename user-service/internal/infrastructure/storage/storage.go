@@ -24,3 +24,7 @@ func New(connStr string, log entity.Logger) (*Storage, error) {
 		log:  log,
 	}, nil
 }
+
+func (s *Storage) Pool() *pgxpool.Pool {
+	return s.pool
+}
